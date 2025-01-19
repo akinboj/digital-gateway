@@ -1,0 +1,5 @@
+---
+name: keycloak identity access management - IAM
+version: 1.0.0-SNAPSHOT
+description: Identity Access Management for Keycloak
+icon: img/icons/camel.svg
