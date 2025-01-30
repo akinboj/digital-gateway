@@ -48,18 +48,20 @@ spec:
           value: {{ .Values.keycloakAdmin }}
         - name: KEYCLOAK_ADMIN
           value: {{ .Values.keycloakAdmin }}
-        - name: KC_HEALTH_ENABLED
-          value: "true"
-        - name: KC_METRICS_ENABLED
-          value: "true"
+        - name: KC_TRUSTSTORE_PATHS
+          value: /etc/ssl/db-certs/truststore.pem
         - name: KC_HTTPS_KEY_STORE_FILE
           value: /opt/keycloak/conf/{{ .Values.serviceName }}.{{ .Release.Namespace }}.jks
         - name: KC_DB
           value: "postgres"
+        - name: KC_HEALTH_ENABLED
+          value: "true"
+        - name: KC_METRICS_ENABLED
+          value: "true"
         - name: KC_DB_USERNAME
           value: "pegacorn"
         - name: KC_DB_URL
-          value: "jdbc:postgresql://pegacorn-hestia-audit-dbaas.site-a:30315/hapi?sslmode=verify-ca&sslrootcert=/etc/ssl/certs/pegacorn-ca.cer&sslcert=/etc/ssl/certs/pegacorn.cer&sslkey=/etc/ssl/certs/pegacorn-pkcs8.key"
+          value: "jdbc:postgresql://pegacorn-hestia-audit-dbaas.site-a:30315/hapi?ssl=true&sslmode=verify-full&sslrootcert=/etc/ssl/db-certs/pegacorn-ca.cer&sslcert=/etc/ssl/db-certs/pegacorn.cer&sslkey=/etc/ssl/db-certs/pegacorn.pk8&sslpassword=${DATABASE_KEY_PASSWORD}"
         - name: KC_BOOTSTRAP_ADMIN_PASSWORD
           valueFrom:
            secretKeyRef:
@@ -145,7 +147,9 @@ spec:
         - name: certificates
           mountPath: /opt/keycloak/conf
         - name: db-certs
-          mountPath: /etc/ssl/certs    
+          mountPath: /etc/ssl/db-certs
+        - name: realm-config
+          mountPath: /opt/keycloak/data/import    
       terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds | default 30 }}
       volumes:
       - name: certificates
@@ -154,3 +158,6 @@ spec:
       - name: db-certs
         hostPath:
           path: {{ .Values.DatabasePathCerts }}
+      - name: realm-config
+        configMap:
+          name: {{ .Values.serviceName }}-realm-config

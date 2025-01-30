@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.serviceName }}-realm-config
+data:
+  realm-config.json: |
+    {
+      "realm": "fhir-integration",
+      "enabled": true,
+      "clients": [
+        {
+          "clientId": "83ec4a9a-4e8b-487d-a52c-f9cee95fc69c",
+          "enabled": true,
+          "publicClient": false,
+          "protocol": "openid-connect",
+          "redirectUris": ["*"],
+          "webOrigins": ["*"],
+          "standardFlowEnabled": false,
+          "implicitFlowEnabled": false,
+          "directAccessGrantsEnabled": false,
+          "serviceAccountsEnabled": true,
+          "clientAuthenticatorType": "client-jwt",
+          "attributes": {
+            "use.jwks.url": "false",
+            "jwt.credential.public.key": "-----BEGIN PUBLIC KEY-----\nMIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEApfga16mmWUblvKvR8hhldYcM44JY8KeV6FAwgR9CpdXljKoF5buEp6umwfz+9cT4LcL78O6JZBSEvIXodNd0OfTmmWpZb7irltDdGZ4Q3PzlS8uC3pTk/VRVQqmBZEDKbRhhL1SPYL6KFh3Z7YDfonrjvVuv/gBnWjLMSSktlts6SdFbsMRykrYCcCUlMSKBY1pJ+CqACu9+PF49fEPKNFK5jcYx2TMYJ6TA2kiRnrQlFu5EgmLODftiekAAWuJhJKqo1qH5vy+cl/zSDXVYeQho4o1bvE1GE0MJFzAs8T8JMAaMD1trGU+TI+I5XlOHxIpLwDZgh/ELoEzJrgjNhacHU2YdNwvObncUvfGM6RRq6i3qFX1Ms4ZcNyJVQWUYVbnAdJ8eb7C2fylktXPB/GqkjfhYWozIi1Purjkbx7TDDJP0bD/VIAgAMdBWADDuWNqo+tYTqoag+elbqljE/KhjIuwsVboEyo/3ZzyMxrGYCVvNuPN+qU2Nj6F/cOuSUOju6d1maTjO5/28f6Dr5ebMA5b9zThR0ihipwogdvyix5Egaf3I4g1mzxGd/DJSZ5e0aBhxo0HJ81i42Az6Dr4sJrJ2gtuuAhTD5Vmwo9Unt3HJlwjT7w/O3BvtZjuHf8FrUMS2QlDCHR6yRt/Mq+pbCmLONJkFCD8+cbNS6M0CAwEAAQ==\n-----END PUBLIC KEY-----"
+          }
+        }
+      ]
+    }
