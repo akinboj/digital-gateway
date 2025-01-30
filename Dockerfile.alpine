@@ -1,0 +1,52 @@
+FROM alpine:latest AS builder
+
+# Configure build options
+ARG IMAGE_BUILD_TIMESTAMP
+ENV IMAGE_BUILD_TIMESTAMP=${IMAGE_BUILD_TIMESTAMP}
+RUN echo IMAGE_BUILD_TIMESTAMP=${IMAGE_BUILD_TIMESTAMP}
+
+# Install required dependencies
+RUN apk add --no-cache curl \
+    ca-certificates \
+    openjdk17-jdk \ 
+    && rm -rf /var/cache/apk/*
+
+# Set environment variables
+ENV KC_VERSION=25.0.0
+ENV KC_HOME=/opt/keycloak
+ENV KC_DIST=https://github.com/keycloak/keycloak/releases/download/${KC_VERSION}/keycloak-${KC_VERSION}.tar.gz
+
+# Download and extract Keycloak
+RUN mkdir -p ${KC_HOME} && \
+    curl -L ${KC_DIST} | tar xz --strip-components=1 -C ${KC_HOME}
+
+WORKDIR ${KC_HOME}
+
+FROM alpine:latest
+COPY --from=builder /opt/keycloak /opt/keycloak
+
+# Path to mount DB certs
+RUN mkdir -p /etc/ssl/db-certs
+
+# Install required dependencies
+RUN apk add --no-cache curl \
+    ca-certificates \
+    openjdk17-jdk \
+    bash \
+    tzdata \ 
+    && rm -rf /var/cache/apk/*
+
+# Configure database vendor
+ENV KC_DB=postgres
+ENV KC_HEALTH_ENABLED=true
+ENV KC_METRICS_ENABLED=true
+ENV TZ="Australia/Sydney"
+
+# Build Keycloak
+RUN /opt/keycloak/bin/kc.sh build
+
+# Set entrypoint
+ENTRYPOINT ["/opt/keycloak/bin/kc.sh"]
+
+# Modify the CMD to include the runtime configurations
+CMD ["start", "--https-port=8443", "--http-enabled=false", "--optimized", "--import-realm"]

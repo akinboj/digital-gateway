@@ -1,9 +1,10 @@
 kubectl create secret generic iam-digital-gateway-secrets --from-literal=keystorePassword="Peg@cornK3yGsRt" --from-literal=truststorePassword="Peg@cornTrustSt0re" --from-literal=keycloakPassword="82Fq2E7yIR1eEv" --from-literal=keycloakAdminPassword="lELHvJN1xUiBTPo" --from-literal=dbKeyPassword="Peg@corn" --namespace=site-a
 
-# Remove password in private key for Postgres authentication
+# Remove password in private key for Postgres authentication (Optional)
+# The password of the private key can be passed to the .k8 file
 openssl pkcs8 -topk8 -inform PEM -outform DER -in pegacorn.key -out pegacorn-pkcs8.key -nocrypt
 
-docker build --rm --build-arg IMAGE_BUILD_TIMESTAMP="$(date '+%Y-%m-%d %H:%M:%S')" -t digital-gateway:1.0.0-snapshot --file Dockerfile .
+docker build --rm --build-arg IMAGE_BUILD_TIMESTAMP="$(date '+%Y-%m-%d %H:%M:%S')" -t digital-gateway:1.0.0-snapshot .
 
 helm upgrade iam-digital-gateway-site-a --install --namespace site-a --set serviceName=iam-digital-gateway,keycloakAdmin=admin,basePort=30415,hostPathCerts=/Users/yemie/dev/data/certificates,DatabasePathCerts=/Users/yemie/dev/data/db-certs,imageTag=1.0.0-snapshot,numOfPods=1 helm
 
@@ -12,3 +13,8 @@ https://iam-digital-gateway.site-a:30415/
 
 # Retrieve access token - POST call in Postman
 https://iam-digital-gateway.site-a:30415/realms/fhir-integration/protocol/openid-connect/token
+
+keytool -exportcert -alias root \
+    -keystore truststore.jks \
+    -storepass Peg@cornTrustSt0re \
+    -rfc -file truststore.pem
